@@ -1,8 +1,8 @@
 package services
 
 import (
-	"ImgAnalysis/pkg/domain/analyzer"
-	"ImgAnalysis/pkg/domain/recognizer"
+	"ImgAnalysis/internal/ports/analyzer"
+	"ImgAnalysis/internal/ports/recognizer"
 	"encoding/json"
 	"github.com/aws/aws-sdk-go/service/rekognition"
 )
@@ -11,19 +11,11 @@ type ImgAnalyzer struct {
 	svc recognizer.Recognizer
 }
 
-type Result struct {
-	Labels []struct {
-		Confidence float64       `json:"Confidence"`
-		Instances  []interface{} `json:"Instances"`
-		Name       string        `json:"Name"`
-	} `json:"Labels"`
-}
-
 func NewAnalyzer(service recognizer.Recognizer) analyzer.Analyzer {
 	return &ImgAnalyzer{svc: service}
 }
 
-func (a *ImgAnalyzer) DoAnalysis(img []byte) (*Result, error) {
+func (a *ImgAnalyzer) DoAnalysis(img []byte) ([]byte, error) {
 	// Create a specific Input to Rekognition
 	input := &rekognition.DetectLabelsInput{
 		Image: &rekognition.Image{
@@ -44,12 +36,5 @@ func (a *ImgAnalyzer) DoAnalysis(img []byte) (*Result, error) {
 		return nil, err
 	}
 
-	// Unmarshall the bytes to result to send specific data to client
-	var result *Result
-	err = json.Unmarshal(bytes, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return bytes, nil
 }

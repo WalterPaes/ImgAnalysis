@@ -1,17 +1,21 @@
 package image
 
 import (
+	"ImgAnalysis/internal/ports/net"
 	"io/ioutil"
-	"net/http"
 )
 
-type Image struct {
-	Url string `json:"url"`
+type Manager struct {
+	httpConn net.HttpConnector
 }
 
-func (img *Image) GetDataByUrl() ([]byte, error) {
+func NewImageManager(conn net.HttpConnector) *Manager {
+	return &Manager{httpConn: conn}
+}
+
+func (m *Manager) GetDataByUrl(img *ImageData) ([]byte, error) {
 	// Do Http request
-	res, err := http.Get(img.Url)
+	res, err := m.httpConn.DoGet(img.Url)
 	if err != nil {
 		return nil, err
 	}

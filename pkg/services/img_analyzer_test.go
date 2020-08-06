@@ -1,8 +1,8 @@
 package services
 
 import (
-	"ImgAnalysis/internal/ports/rekognition"
 	"ImgAnalysis/pkg/domain/image"
+	"ImgAnalysis/pkg/rekognition"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 func TestImgAnalyzer_DoAnalysis(t *testing.T) {
 	svc := NewAnalyzer(rekognition.NewRekognition())
 
-	img := &image.Image{
+	img := &image.ImageData{
 		Url: "https://images.pexels.com/photos/1741205/pexels-photo-1741205.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
 	}
 

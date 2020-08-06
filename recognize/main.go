@@ -1,39 +1,47 @@
 package main
 
 import (
-	"bytes"
-	"context"
+	"ImgAnalysis/internal/adapters"
+	"ImgAnalysis/pkg/core"
+	"ImgAnalysis/pkg/domain/image"
+	"ImgAnalysis/pkg/rekognition"
+	"ImgAnalysis/pkg/services"
 	"encoding/json"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-// Response is of type APIGatewayProxyResponse since we're leveraging the
-// AWS Lambda Proxy Request functionality (default behavior)
-//
-// https://serverless.com/framework/docs/providers/aws/events/apigateway/#lambda-proxy-integration
+type Request events.APIGatewayProxyRequest
 type Response events.APIGatewayProxyResponse
 
-// Handler is our lambda handler invoked by the `lambda.Start` function call
-func Handler(ctx context.Context) (Response, error) {
-	var buf bytes.Buffer
-
-	body, err := json.Marshal(map[string]interface{}{
-		"message": "Go Serverless v1.0! Your function executed successfully!",
-	})
+func Handler(req Request) (Response, error) {
+	var input *adapters.ImageRequestInput
+	err := json.Unmarshal([]byte(req.Body), &input)
 	if err != nil {
-		return Response{StatusCode: 404}, err
+		return Response{StatusCode: http.StatusInternalServerError}, err
 	}
-	json.HTMLEscape(&buf, body)
+
+	adapter := adapters.NewImageRecognizeAdapter(
+		image.NewImageManager(core.NewHttpConnector()),
+		services.NewAnalyzer(rekognition.NewRekognition()))
+
+	output, err := adapter.Recognize(input)
+	if err != nil {
+		return Response{StatusCode: http.StatusInternalServerError}, err
+	}
+
+	body, err := json.Marshal(output)
+	if err != nil {
+		return Response{StatusCode: http.StatusInternalServerError}, err
+	}
 
 	resp := Response{
-		StatusCode:      200,
-		IsBase64Encoded: false,
-		Body:            buf.String(),
+		StatusCode: http.StatusOK,
+		Body:       string(body),
 		Headers: map[string]string{
-			"Content-Type":           "application/json",
-			"X-MyCompany-Func-Reply": "hello-handler",
+			"Content-Type": "application/json",
 		},
 	}
 
