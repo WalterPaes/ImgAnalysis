@@ -4,6 +4,7 @@ import (
 	"ImgAnalysis/internal/ports/analyzer"
 	"ImgAnalysis/pkg/domain/image"
 	"encoding/json"
+	"fmt"
 )
 
 type ImageRequestInput struct {
@@ -11,11 +12,16 @@ type ImageRequestInput struct {
 }
 
 type ImageRequestOutput struct {
-	Labels []struct {
-		Confidence float64       `json:"Confidence"`
-		Instances  []interface{} `json:"Instances"`
-		Name       string        `json:"Name"`
-	} `json:"Labels"`
+	Analysis []string `json:"analysis"`
+}
+
+type AnalysisResult struct {
+	Labels []Labels `json:"Labels"`
+}
+
+type Labels struct {
+	Confidence float64 `json:"Confidence"`
+	Name       string  `json:"Name"`
 }
 
 type ImageRecognizeAdapter struct {
@@ -46,12 +52,22 @@ func (adapter *ImageRecognizeAdapter) Recognize(req *ImageRequestInput) (*ImageR
 		return nil, err
 	}
 
-	// Return the Result of analysis to Client
-	var output *ImageRequestOutput
-	err = json.Unmarshal(result, output)
+	// Set the result to struct
+	var analysisResult AnalysisResult
+	err = json.Unmarshal(result, &analysisResult)
 	if err != nil {
 		return nil, err
 	}
 
-	return output, err
+	return adapter.setOutput(analysisResult.Labels), err
+}
+
+func (adapter *ImageRecognizeAdapter) setOutput(labels []Labels) *ImageRequestOutput {
+	output := &ImageRequestOutput{}
+	for _, v := range labels {
+		output.Analysis = append(
+			output.Analysis,
+			fmt.Sprintf("This image has %.2f chance being a %s", v.Confidence, v.Name))
+	}
+	return output
 }

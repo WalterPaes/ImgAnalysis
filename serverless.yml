@@ -3,6 +3,11 @@ service: imganalysis
 provider:
   name: aws
   runtime: go1.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - rekognition:DetectLabels
+      Resource: "*"
 
 package:
   exclude:
@@ -17,3 +22,4 @@ functions:
       - http:
           path: recognize
           method: post
+          private: false

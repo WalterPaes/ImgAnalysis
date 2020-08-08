@@ -20,7 +20,10 @@ func Handler(req Request) (Response, error) {
 	var input *adapters.ImageRequestInput
 	err := json.Unmarshal([]byte(req.Body), &input)
 	if err != nil {
-		return Response{StatusCode: http.StatusInternalServerError}, err
+		return Response{
+			StatusCode: http.StatusInternalServerError,
+			Body:       err.Error(),
+		}, err
 	}
 
 	adapter := adapters.NewImageRecognizeAdapter(
@@ -29,12 +32,18 @@ func Handler(req Request) (Response, error) {
 
 	output, err := adapter.Recognize(input)
 	if err != nil {
-		return Response{StatusCode: http.StatusInternalServerError}, err
+		return Response{
+			StatusCode: http.StatusInternalServerError,
+			Body:       err.Error(),
+		}, err
 	}
 
 	body, err := json.Marshal(output)
 	if err != nil {
-		return Response{StatusCode: http.StatusInternalServerError}, err
+		return Response{
+			StatusCode: http.StatusInternalServerError,
+			Body:       err.Error(),
+		}, err
 	}
 
 	resp := Response{
