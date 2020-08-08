@@ -2,8 +2,12 @@ package image
 
 import (
 	"ImgAnalysis/internal/ports/net"
+	"errors"
 	"io/ioutil"
+	"net/http"
 )
+
+var ErrorInRequest = errors.New("just status OK is expected")
 
 type Manager struct {
 	httpConn net.HttpConnector
@@ -22,6 +26,11 @@ func (m *Manager) GetDataByUrl(img *ImageData) ([]byte, error) {
 
 	// Close connection in the end
 	defer res.Body.Close()
+
+	// Check status code from response
+	if res.StatusCode != http.StatusOK {
+		return nil, ErrorInRequest
+	}
 
 	// Parse the img buffer to slice of bytes
 	body, err := ioutil.ReadAll(res.Body)
