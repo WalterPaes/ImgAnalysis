@@ -13,10 +13,7 @@ const (
 	labelConfidence = 97.41643524169922
 )
 
-var (
-	rekognitionPayloadSampleResponse = fmt.Sprintf("{\n\t\"Labels\": [{\n\t\t\"Confidence\": %v,\n\t\t\"Instances\": [],\n\t\t\"Name\": \"%s\",\n\t\t\"Parents\": [{\n\t\t\t\"Name\": \"Animal\"\n\t\t}]\n\t}]\n}", labelConfidence, labelName)
-	//rekognitionPayloadSampleResponseWithError = fmt.Sprintf("{\n\t\"Labels\": [{\n\t\t\"Confidence\": %v,\n\t\t\"Instances\": [],\n\t\t\"Name\": \"%s\",\n\t\t\"Parents\": [{\n\t\t\t\"Name\": \"Animal\"\n\t\t}]\n\t}]\n}", labelName, labelConfidence)
-)
+var rekognitionPayloadSampleResponse = fmt.Sprintf("{\n\t\"Labels\": [{\n\t\t\"Confidence\": %v,\n\t\t\"Instances\": [],\n\t\t\"Name\": \"%s\",\n\t\t\"Parents\": [{\n\t\t\t\"Name\": \"Animal\"\n\t\t}]\n\t}]\n}", labelConfidence, labelName)
 
 // Success Mock
 type RecognizerMockSuccess struct{}
