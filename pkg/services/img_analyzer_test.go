@@ -1,32 +1,47 @@
 package services
 
 import (
-	"ImgAnalysis/internal/ports/rekognition"
-	"ImgAnalysis/pkg/domain/image"
-	"io/ioutil"
-	"log"
-	"net/http"
+	"encoding/json"
+	"fmt"
+	"github.com/aws/aws-sdk-go/service/rekognition"
 	"testing"
 )
 
+const (
+	labelName       = "Mammal"
+	labelConfidence = 97.41643524169922
+)
+
+var rekognitionPayloadSampleResponse = fmt.Sprintf("{\n\t\"Labels\": [{\n\t\t\"Confidence\": %v,\n\t\t\"Instances\": [],\n\t\t\"Name\": \"%s\",\n\t\t\"Parents\": [{\n\t\t\t\"Name\": \"Animal\"\n\t\t}]\n\t}]\n}", labelConfidence, labelName)
+
+type RecognizerMock struct{}
+
+func (r RecognizerMock) DetectLabels(_ *rekognition.DetectLabelsInput) (*rekognition.DetectLabelsOutput, error) {
+	var output *rekognition.DetectLabelsOutput
+	json.Unmarshal([]byte(rekognitionPayloadSampleResponse), &output)
+	return output, nil
+}
+
 func TestImgAnalyzer_DoAnalysis(t *testing.T) {
-	svc := NewAnalyzer(rekognition.NewRekognition())
+	svc := NewAnalyzer(&RecognizerMock{})
 
-	img := &image.ImageData{
-		Url: "https://images.pexels.com/photos/1741205/pexels-photo-1741205.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-	}
-
-	resp, err := http.Get(img.Url)
+	result, err := svc.DoAnalysis([]byte("TESTANDO"))
 	if err != nil {
-		log.Fatal(err)
+		t.Errorf("Errors was not expected! Error: %s", err.Error())
 	}
 
-	defer resp.Body.Close()
+	expectedConfidence := result.Labels[0].Confidence
+	expectedName := result.Labels[0].Name
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	t.Run("Assert Confidence", func(t *testing.T) {
+		if expectedConfidence != labelConfidence {
+			t.Errorf("Was expected '%f' but got '%f'", labelConfidence, expectedConfidence)
+		}
+	})
 
-	svc.DoAnalysis(body)
+	t.Run("Assert Label's Name", func(t *testing.T) {
+		if expectedName != labelName {
+			t.Errorf("Was expected '%s' but got '%s'", labelName, expectedName)
+		}
+	})
 }
