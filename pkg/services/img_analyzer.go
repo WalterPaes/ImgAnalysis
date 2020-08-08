@@ -31,10 +31,7 @@ func (a *ImgAnalyzer) DoAnalysis(img []byte) (*analyzer.Result, error) {
 	}
 
 	// Marshal the output and get bytes
-	outputInBytes, err := json.Marshal(output)
-	if err != nil {
-		return nil, err
-	}
+	outputInBytes, _ := json.Marshal(output)
 
 	// Set the bytes of output to specific struct
 	var analysisResult *analyzer.Result
