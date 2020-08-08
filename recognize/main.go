@@ -2,9 +2,9 @@ package main
 
 import (
 	"ImgAnalysis/internal/adapters"
+	"ImgAnalysis/internal/ports/rekognition"
 	"ImgAnalysis/pkg/core"
 	"ImgAnalysis/pkg/domain/image"
-	"ImgAnalysis/pkg/rekognition"
 	"ImgAnalysis/pkg/services"
 	"encoding/json"
 	"net/http"

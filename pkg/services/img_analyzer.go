@@ -15,7 +15,7 @@ func NewAnalyzer(service recognizer.Recognizer) analyzer.Analyzer {
 	return &ImgAnalyzer{svc: service}
 }
 
-func (a *ImgAnalyzer) DoAnalysis(img []byte) ([]byte, error) {
+func (a *ImgAnalyzer) DoAnalysis(img []byte) (*analyzer.Result, error) {
 	// Create a specific Input to Rekognition
 	input := &rekognition.DetectLabelsInput{
 		Image: &rekognition.Image{
@@ -31,10 +31,17 @@ func (a *ImgAnalyzer) DoAnalysis(img []byte) ([]byte, error) {
 	}
 
 	// Marshal the output and get bytes
-	bytes, err := json.Marshal(output)
+	outputInBytes, err := json.Marshal(output)
 	if err != nil {
 		return nil, err
 	}
 
-	return bytes, nil
+	// Set the bytes of output to specific struct
+	var analysisResult *analyzer.Result
+	err = json.Unmarshal(outputInBytes, &analysisResult)
+	if err != nil {
+		return nil, err
+	}
+
+	return analysisResult, nil
 }

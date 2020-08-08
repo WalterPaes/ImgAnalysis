@@ -3,7 +3,6 @@ package adapters
 import (
 	"ImgAnalysis/internal/ports/analyzer"
 	"ImgAnalysis/pkg/domain/image"
-	"encoding/json"
 	"fmt"
 )
 
@@ -13,15 +12,6 @@ type ImageRequestInput struct {
 
 type ImageRequestOutput struct {
 	Analysis []string `json:"analysis"`
-}
-
-type AnalysisResult struct {
-	Labels []Labels `json:"Labels"`
-}
-
-type Labels struct {
-	Confidence float64 `json:"Confidence"`
-	Name       string  `json:"Name"`
 }
 
 type ImageRecognizeAdapter struct {
@@ -52,17 +42,10 @@ func (adapter *ImageRecognizeAdapter) Recognize(req *ImageRequestInput) (*ImageR
 		return nil, err
 	}
 
-	// Set the result to struct
-	var analysisResult AnalysisResult
-	err = json.Unmarshal(result, &analysisResult)
-	if err != nil {
-		return nil, err
-	}
-
-	return adapter.setOutput(analysisResult.Labels), err
+	return adapter.setOutput(result.Labels), err
 }
 
-func (adapter *ImageRecognizeAdapter) setOutput(labels []Labels) *ImageRequestOutput {
+func (adapter *ImageRecognizeAdapter) setOutput(labels []analyzer.Labels) *ImageRequestOutput {
 	output := &ImageRequestOutput{}
 	for _, v := range labels {
 		output.Analysis = append(

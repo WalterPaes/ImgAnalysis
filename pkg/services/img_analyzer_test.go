@@ -1,8 +1,8 @@
 package services
 
 import (
+	"ImgAnalysis/internal/ports/rekognition"
 	"ImgAnalysis/pkg/domain/image"
-	"ImgAnalysis/pkg/rekognition"
 	"io/ioutil"
 	"log"
 	"net/http"
