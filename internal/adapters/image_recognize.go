@@ -67,7 +67,7 @@ func (adapter *ImageRecognizeAdapter) setOutput(labels []Labels) *ImageRequestOu
 	for _, v := range labels {
 		output.Analysis = append(
 			output.Analysis,
-			fmt.Sprintf("This image has %.2f chance being a %s", v.Confidence, v.Name))
+			fmt.Sprintf("This image has %.2f%% chance being a %s", v.Confidence, v.Name))
 	}
 	return output
 }
