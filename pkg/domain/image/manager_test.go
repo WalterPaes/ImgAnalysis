@@ -2,39 +2,9 @@ package image
 
 import (
 	"ImgAnalysis/internal/ports/net"
-	"bytes"
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"testing"
 )
-
-var fakeUrl = "http://fakeurl.com"
-
-type HttpConnectorSuccess struct{}
-
-func (h HttpConnectorSuccess) DoGet(_ string) (*http.Response, error) {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(bytes.NewBufferString(string(bytesResponse))),
-	}, nil
-}
-
-type HttpConnectorFail struct{}
-
-func (h HttpConnectorFail) DoGet(_ string) (*http.Response, error) {
-	return nil, errors.New("an error")
-}
-
-type HttpConnectorFailWithWrongStatusCode struct{}
-
-func (h HttpConnectorFailWithWrongStatusCode) DoGet(_ string) (*http.Response, error) {
-	return &http.Response{
-		StatusCode: http.StatusNotFound,
-		Body:       ioutil.NopCloser(bytes.NewBufferString("testing")),
-	}, nil
-}
 
 func TestNewImageManager(t *testing.T) {
 	manager := NewImageManager(&HttpConnectorSuccess{})
@@ -48,7 +18,7 @@ func TestNewImageManager(t *testing.T) {
 func TestManager_GetDataByUrl(t *testing.T) {
 	getDataByUrl := func(connector net.HttpConnector) ([]byte, error) {
 		manager := NewImageManager(connector)
-		img := &ImageData{Url: fakeUrl}
+		img := &ImageData{Url: FakeUrl}
 		return manager.GetDataByUrl(img)
 	}
 
